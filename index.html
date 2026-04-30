@@ -54,6 +54,12 @@
 
     .header p { font-size: 0.9rem; color: var(--text-light); max-width: 400px; margin: 0 auto; }
 
+    .param-info {
+      margin-top: 10px; font-size: 0.85rem; color: var(--primary);
+      font-weight: 600; background: var(--primary-light); padding: 6px 14px;
+      border-radius: 8px; display: inline-block;
+    }
+
     .card {
       background: var(--card); border-radius: var(--radius);
       box-shadow: var(--shadow); padding: 20px; margin-bottom: 16px;
@@ -203,6 +209,7 @@
     </div>
     <h1>Indywidualny Plan Wdro&#380;enia</h1>
     <p>Wype&#322;nij sw&#243;j plan wdro&#380;enia wiedzy i umiej&#281;tno&#347;ci po szkoleniu. Opisz co i jak chcesz zastosowa&#263; w swojej pracy.</p>
+    <div id="param-info" class="param-info hidden"></div>
   </div>
 
   <div id="error-msg" class="message error">
@@ -315,6 +322,11 @@
   // ================================================
   var APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxzQ7SPfckgrOv78uUSIduyjg8tkIERGWf2A4KDu7KZkDPD8gYfKLPnTZOEMsaBMJrhvQ/exec';
 
+  var urlParams = new URLSearchParams(window.location.search);
+  var paramTrener = urlParams.get('trener') || '';
+  var paramSzkolenie = urlParams.get('szkolenie') || '';
+  var paramProjekt = urlParams.get('projekt') || '';
+
   var visibleActions = 1;
   var maxActions = 4;
 
@@ -346,6 +358,8 @@
     var data = {
       name: document.getElementById('name').value.trim(),
       training: document.getElementById('training').value.trim(),
+      trener: paramTrener,
+      projekt: paramProjekt,
       actions: []
     };
     for (var i = 1; i <= maxActions; i++) {
@@ -420,12 +434,35 @@
     document.getElementById('success-view').classList.add('hidden');
     document.getElementById('form-view').classList.remove('hidden');
     window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (paramSzkolenie) {
+      document.getElementById('training').value = paramSzkolenie;
+    }
+    var twoWeeks = new Date();
+    twoWeeks.setDate(twoWeeks.getDate() + 14);
+    document.getElementById('deadline-1').value = twoWeeks.toISOString().split('T')[0];
   }
 
   (function() {
     var twoWeeks = new Date();
     twoWeeks.setDate(twoWeeks.getDate() + 14);
     document.getElementById('deadline-1').value = twoWeeks.toISOString().split('T')[0];
+
+    if (paramSzkolenie) {
+      var trainingField = document.getElementById('training');
+      trainingField.value = paramSzkolenie;
+      trainingField.readOnly = true;
+      trainingField.style.backgroundColor = '#f1f5f9';
+      trainingField.style.cursor = 'default';
+    }
+
+    if (paramSzkolenie || paramTrener) {
+      var parts = [];
+      if (paramSzkolenie) parts.push(paramSzkolenie);
+      if (paramTrener) parts.push('Trener: ' + paramTrener);
+      var infoEl = document.getElementById('param-info');
+      infoEl.textContent = parts.join(' \u2022 ');
+      infoEl.classList.remove('hidden');
+    }
   })();
 </script>
 
